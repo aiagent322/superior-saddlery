@@ -458,7 +458,7 @@
     .admin-layout { padding: 2.5rem 2rem; gap: 2rem; }
   }
 </style>
-</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/supabase-js.min.js" crossorigin="anonymous">
 <body>
 
 <header class="admin-header">
@@ -596,19 +596,43 @@
 <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
+  // ─── Supabase Connection ───
+  const SUPABASE_URL = 'https://eyayfiahbkczisdxwvup.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5YXlmaWFoYmtjemlzZHh3dnVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDc0MjEsImV4cCI6MjA4OTA4MzQyMX0.LpHerIHN30QJ-mOQQSRP5bYks-IoAAq8dPJJqpK1Vq8';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
   let saddles = [];
 
-  // ─── Persistence (localStorage between sessions) ───
-  function save() {
-    localStorage.setItem('usedSaddles', JSON.stringify(saddles));
+  // ─── Persistence (Supabase) ───
+  async function save() {
     render();
   }
 
-  function load() {
+  async function load() {
     try {
-      const stored = localStorage.getItem('usedSaddles');
-      if (stored) saddles = JSON.parse(stored);
-    } catch(e) { saddles = []; }
+      const { data, error } = await sb.from('used_saddles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      saddles = (data || []).map(row => ({
+        id: row.id,
+        title: row.title,
+        model: row.model,
+        category: row.category || 'Certified Used',
+        img: row.img || '',
+        images: row.images || [],
+        url: row.url || '#',
+        price: row.price || '',
+        stockNo: row.stock_no || '',
+        description: row.description || '',
+        specs: row.specs || [],
+        status: row.status || 'active'
+      }));
+    } catch(e) {
+      console.error('Supabase load error:', e);
+      toast('Failed to load from database — check connection', 'danger');
+      saddles = [];
+    }
     render();
   }
 
@@ -646,7 +670,7 @@
   }
 
   // ─── Add ───
-  function addSaddle() {
+  async function addSaddle() {
     const title = document.getElementById('f-title').value.trim();
     const model = document.getElementById('f-model').value.trim();
     const category = document.getElementById('f-category').value.trim();
@@ -660,7 +684,7 @@
     if (!title) { toast('Saddle name is required', 'danger'); return; }
     if (!model) { toast('Model number is required', 'danger'); return; }
 
-    saddles.push({
+    const row = {
       title,
       category: category || 'Certified Used',
       model: model.startsWith('Model Nr.') ? model : `Model Nr. ${model}`,
@@ -668,23 +692,37 @@
       images: images,
       url: url || '#',
       price: price || '',
-      stockNo: stockNo || '',
+      stock_no: stockNo || '',
       description: desc || '',
-      specs: specsRaw ? specsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Contact Superior Saddlery for details']
-    });
+      specs: specsRaw ? specsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Contact Superior Saddlery for details'],
+      status: 'active'
+    };
 
-    save();
-    clearForm();
-    toast(`Added: ${title}`, 'success');
+    try {
+      const { error } = await sb.from('used_saddles').insert([row]);
+      if (error) throw error;
+      await load();
+      clearForm();
+      toast(`Added: ${title}`, 'success');
+    } catch(e) {
+      console.error('Insert error:', e);
+      toast(`Failed to add: ${e.message}`, 'danger');
+    }
   }
 
   // ─── Delete ───
-  function deleteSaddle(index) {
-    const name = saddles[index].title;
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    saddles.splice(index, 1);
-    save();
-    toast(`Deleted: ${name}`, 'danger');
+  async function deleteSaddle(index) {
+    const saddle = saddles[index];
+    if (!confirm(`Delete "${saddle.title}"? This cannot be undone.`)) return;
+    try {
+      const { error } = await sb.from('used_saddles').delete().eq('id', saddle.id);
+      if (error) throw error;
+      await load();
+      toast(`Deleted: ${saddle.title}`, 'danger');
+    } catch(e) {
+      console.error('Delete error:', e);
+      toast(`Failed to delete: ${e.message}`, 'danger');
+    }
   }
 
   // ─── Clear Form ───
@@ -717,16 +755,32 @@
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
       try {
         const data = JSON.parse(e.target.result);
         if (!Array.isArray(data)) throw new Error('Not an array');
-        // Validate structure
         const valid = data.every(s => s.title && s.model);
         if (!valid) throw new Error('Missing title or model in some entries');
         if (saddles.length > 0 && !confirm(`Replace current ${saddles.length} saddles with ${data.length} from file?`)) return;
-        saddles = data;
-        save();
+
+        // Clear existing and insert new
+        await sb.from('used_saddles').delete().neq('id', 0);
+        const rows = data.map(s => ({
+          title: s.title,
+          model: s.model,
+          category: s.category || 'Certified Used',
+          img: s.img || (s.images && s.images[0]) || '',
+          images: s.images || (s.img ? [s.img] : []),
+          url: s.url || '#',
+          price: s.price || '',
+          stock_no: s.stockNo || s.stock_no || '',
+          description: s.description || '',
+          specs: s.specs || [],
+          status: 'active'
+        }));
+        const { error } = await sb.from('used_saddles').insert(rows);
+        if (error) throw error;
+        await load();
         toast(`Imported ${data.length} saddles`, 'success');
       } catch(err) {
         toast(`Import failed: ${err.message}`, 'danger');
