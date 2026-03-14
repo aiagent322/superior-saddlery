@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Admin — Certified Used Saddles | Superior Saddlery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,119 +16,213 @@
     --white:#FFFFFF;--muted:#8B7D6F;--danger:#A63D2F;--danger-bg:#F5E6E3;
     --success:#3D7A4A;--success-bg:#E6F0E8;--sold:#8B6914;--sold-bg:#F5EDD8;
     --info:#2D6A8F;--info-bg:#E4EEF4;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{font-family:'Source Sans 3',sans-serif;background:var(--cream);color:var(--charcoal);min-height:100vh}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{font-family:'Source Sans 3',sans-serif;background:var(--cream);color:var(--charcoal);min-height:100vh;min-height:100dvh;padding-bottom:var(--safe-bottom)}
 
-  .admin-header{background:var(--warm-black);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;position:sticky;top:0;z-index:100}
-  .admin-header h1{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--cream);font-weight:700}
+  /* ─── HEADER: stacked on mobile ─── */
+  .admin-header{
+    background:var(--warm-black);
+    padding:calc(.75rem + var(--safe-top)) 1rem .75rem;
+    display:flex;flex-direction:column;gap:.5rem;
+    position:sticky;top:0;z-index:100;
+  }
+  .header-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .admin-header h1{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--cream);font-weight:700;white-space:nowrap}
   .admin-header h1 span{color:var(--aged-gold)}
-  .header-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-  .header-badge{font-size:.65rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--aged-gold);border:1px solid rgba(184,148,62,.4);padding:.3rem .8rem}
-  .header-count{font-size:.82rem;color:var(--silver);font-weight:500}
-  .header-count strong{color:var(--aged-gold);font-size:1.1rem}
-  .db-status{display:flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
-  .db-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
-  .db-dot.connected{background:#4ADE80;box-shadow:0 0 6px rgba(74,222,128,.5)}
-  .db-dot.error{background:var(--danger);box-shadow:0 0 6px rgba(166,61,47,.5)}
+  .header-meta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+  .header-badge{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--aged-gold);border:1px solid rgba(184,148,62,.4);padding:.2rem .6rem;display:none}
+  .header-count{font-size:.78rem;color:var(--silver);font-weight:500}
+  .header-count strong{color:var(--aged-gold);font-size:1rem}
+  .db-status{display:flex;align-items:center;gap:.3rem;font-size:.65rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .db-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background .3s}
+  .db-dot.connected{background:#4ADE80;box-shadow:0 0 5px rgba(74,222,128,.5)}
+  .db-dot.error{background:var(--danger);box-shadow:0 0 5px rgba(166,61,47,.5)}
   .db-status-text{color:var(--silver)}
+  .btn-refresh{background:none;border:1px solid rgba(184,148,62,.3);color:var(--silver);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;border-radius:2px;flex-shrink:0}
+  .btn-refresh:hover,.btn-refresh:active{border-color:var(--aged-gold);color:var(--aged-gold)}
+  .btn-refresh:active{transform:scale(.92)}
+  .btn-refresh svg{width:14px;height:14px}
 
-  .admin-layout{max-width:1100px;margin:0 auto;padding:1.5rem 1rem;display:flex;flex-direction:column;gap:1.5rem}
+  /* ─── LAYOUT ─── */
+  .admin-layout{
+    max-width:1100px;margin:0 auto;
+    padding:1rem calc(.75rem + var(--safe-left)) 1rem calc(.75rem + var(--safe-right));
+    display:flex;flex-direction:column;gap:1.25rem;
+  }
 
+  /* ─── LOADING ─── */
   .loading-bar{height:3px;background:linear-gradient(90deg,var(--aged-gold) 30%,var(--cream) 50%,var(--aged-gold) 70%);background-size:200% 100%;animation:shimmer 1.5s infinite;position:fixed;top:0;left:0;right:0;z-index:200;display:none}
   .loading-bar.active{display:block}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-  .form-panel{background:var(--white);border:1px solid rgba(200,169,110,.2);padding:1.5rem}
-  .form-panel h2{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--leather);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:2px solid var(--aged-gold)}
-  .form-grid{display:grid;grid-template-columns:1fr;gap:1rem}
-  .form-group label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
-  .form-group input,.form-group textarea,.form-group select{width:100%;padding:.65rem .85rem;font-family:'Source Sans 3',sans-serif;font-size:.9rem;color:var(--charcoal);background:var(--cream);border:1.5px solid var(--silver);outline:none;transition:border-color .2s}
+  /* ─── PANELS ─── */
+  .form-panel{background:var(--white);border:1px solid rgba(200,169,110,.2);padding:1.25rem 1rem}
+  .form-panel h2{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--leather);margin-bottom:1rem;padding-bottom:.65rem;border-bottom:2px solid var(--aged-gold)}
+  .form-grid{display:grid;grid-template-columns:1fr;gap:.85rem}
+  .form-group label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+
+  /* 16px font prevents iOS auto-zoom on focus */
+  .form-group input,.form-group textarea,.form-group select{
+    width:100%;padding:.7rem .85rem;
+    font-family:'Source Sans 3',sans-serif;font-size:16px;
+    color:var(--charcoal);background:var(--cream);
+    border:1.5px solid var(--silver);outline:none;
+    transition:border-color .2s;border-radius:0;
+    -webkit-appearance:none;appearance:none;
+  }
   .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--aged-gold)}
-  .form-group textarea{resize:vertical;min-height:70px}
-  .form-group .hint{font-size:.72rem;color:var(--muted);margin-top:.25rem}
-  .img-fields{display:flex;flex-direction:column;gap:.5rem}
-  .img-fields input{width:100%;padding:.65rem .85rem;font-family:'Source Sans 3',sans-serif;font-size:.9rem;color:var(--charcoal);background:var(--cream);border:1.5px solid var(--silver);outline:none;transition:border-color .2s}
+  .form-group textarea{resize:vertical;min-height:80px}
+  .form-group select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7D6F' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center;padding-right:2.2rem}
+  .form-group .hint{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+  /* Collapsible image fields */
+  .img-fields{display:flex;flex-direction:column;gap:.45rem}
+  .img-fields input{
+    width:100%;padding:.7rem .85rem;font-family:'Source Sans 3',sans-serif;font-size:16px;
+    color:var(--charcoal);background:var(--cream);border:1.5px solid var(--silver);outline:none;
+    transition:border-color .2s;border-radius:0;-webkit-appearance:none;
+  }
   .img-fields input:first-child{border-color:var(--aged-gold);background:rgba(184,148,62,.06)}
   .img-fields input:focus{border-color:var(--aged-gold)}
-  .form-actions{display:flex;gap:.75rem;margin-top:.5rem;flex-wrap:wrap}
+  .img-extras{display:none}
+  .img-extras.open{display:flex;flex-direction:column;gap:.45rem}
+  .img-toggle{font-size:.75rem;color:var(--aged-gold);font-weight:600;cursor:pointer;margin-top:.25rem;background:none;border:none;text-align:left;padding:.2rem 0;text-decoration:underline;text-underline-offset:2px}
 
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:.6rem 1.5rem;font-family:'Source Sans 3',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s}
+  .form-actions{display:flex;gap:.65rem;margin-top:.65rem;flex-wrap:wrap}
+
+  /* ─── BUTTONS — 44px minimum touch targets ─── */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+    min-height:44px;padding:.6rem 1.25rem;
+    font-family:'Source Sans 3',sans-serif;font-size:.8rem;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;
+    transition:all .15s;-webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{transform:scale(.97)}
   .btn-primary{background:var(--leather);color:var(--cream)}
   .btn-primary:hover{background:var(--deep-brown)}
-  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
   .btn-export{background:var(--aged-gold);color:var(--warm-black)}
   .btn-export:hover{background:#A68435}
   .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--silver)}
   .btn-ghost:hover{border-color:var(--aged-gold);color:var(--leather)}
 
-  .filter-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
-  .filter-tab{padding:.4rem .9rem;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1.5px solid var(--silver);color:var(--muted);cursor:pointer;transition:all .2s}
+  /* ─── FILTER TABS: horizontal scroll on mobile ─── */
+  .filter-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;margin:0 -1rem;padding:0 1rem}
+  .filter-scroll::-webkit-scrollbar{display:none}
+  .filter-tabs{display:flex;gap:.4rem;width:max-content;padding:.25rem 0}
+  .filter-tab{
+    padding:.45rem .85rem;font-size:.72rem;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;background:transparent;border:1.5px solid var(--silver);
+    color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;
+    min-height:36px;-webkit-tap-highlight-color:transparent;
+  }
   .filter-tab.active{background:var(--leather);border-color:var(--leather);color:var(--cream)}
-  .filter-tab:hover:not(.active){border-color:var(--aged-gold);color:var(--leather)}
+  .filter-tab:active:not(.active){background:rgba(200,169,110,.1)}
 
+  /* ─── TABLE PANEL ─── */
   .table-panel{background:var(--white);border:1px solid rgba(200,169,110,.2)}
-  .table-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;padding:1.25rem 1.5rem;border-bottom:2px solid var(--aged-gold)}
-  .table-header h2{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--leather)}
+  .table-header{display:flex;flex-direction:column;gap:.75rem;padding:1rem}
+  .table-header-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .table-header h2{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--leather)}
+  .table-header .form-actions{margin:0}
   .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;min-width:700px}
-  thead th{font-size:.68rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);background:var(--cream);padding:.75rem 1rem;text-align:left;border-bottom:1px solid rgba(200,169,110,.2);position:sticky;top:0}
-  tbody td{padding:.75rem 1rem;font-size:.85rem;border-bottom:1px solid rgba(200,169,110,.1);vertical-align:middle}
+  thead th{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--cream);padding:.65rem .75rem;text-align:left;border-bottom:1px solid rgba(200,169,110,.2);position:sticky;top:0}
+  tbody td{padding:.65rem .75rem;font-size:.85rem;border-bottom:1px solid rgba(200,169,110,.08);vertical-align:middle}
   tbody tr:hover{background:rgba(200,169,110,.05)}
-  .td-thumb{width:50px;height:50px;object-fit:contain;background:var(--cream);border:1px solid rgba(200,169,110,.2)}
-  .td-thumb-empty{width:50px;height:50px;background:var(--cream);border:1px solid rgba(200,169,110,.2);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--muted);text-transform:uppercase}
+  .td-thumb{width:48px;height:48px;object-fit:contain;background:var(--cream);border:1px solid rgba(200,169,110,.2)}
+  .td-thumb-empty{width:48px;height:48px;background:var(--cream);border:1px solid rgba(200,169,110,.2);display:flex;align-items:center;justify-content:center;font-size:.5rem;color:var(--muted);text-transform:uppercase}
   .td-title{font-weight:600;color:var(--leather)}
-  .td-model{font-size:.78rem;color:var(--muted);font-family:monospace}
-  .status-badge{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .55rem;border-radius:2px}
+  .td-model{font-size:.75rem;color:var(--muted);font-family:monospace}
+  .status-badge{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .5rem;border-radius:2px}
   .status-active{background:var(--success-bg);color:var(--success)}
   .status-sold{background:var(--sold-bg);color:var(--sold)}
   .status-pending{background:var(--info-bg);color:var(--info)}
   .status-archived{background:var(--cream);color:var(--muted)}
-  .row-actions{display:flex;gap:.35rem}
-  .btn-sm{background:none;border:1px solid var(--silver);color:var(--muted);font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .55rem;min-height:28px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .row-actions{display:flex;gap:.3rem}
+  .btn-sm{background:none;border:1px solid var(--silver);color:var(--muted);font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.35rem .6rem;min-height:32px;cursor:pointer;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+  .btn-sm:active{transform:scale(.95)}
   .btn-sm:hover{border-color:var(--aged-gold);color:var(--leather)}
   .btn-sm.del{border-color:var(--danger);color:var(--danger)}
   .btn-sm.del:hover{background:var(--danger);color:var(--white)}
-  .empty-state{text-align:center;padding:3rem 1.5rem;color:var(--muted);font-size:.92rem}
+  .empty-state{text-align:center;padding:2.5rem 1.25rem;color:var(--muted);font-size:.9rem}
 
-  .card-list{display:none}
-  .saddle-card{background:var(--white);border:1px solid rgba(200,169,110,.15);padding:1rem;display:flex;gap:.85rem}
-  .saddle-card+.saddle-card{border-top:none}
-  .card-thumb{width:60px;height:60px;object-fit:contain;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0}
-  .card-thumb-empty{width:60px;height:60px;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--muted);text-transform:uppercase}
+  /* ─── MOBILE CARDS — default view, table hidden ─── */
+  .desktop-table{display:none}
+  .card-list{display:block}
+  .saddle-card{background:var(--white);border-bottom:1px solid rgba(200,169,110,.12);padding:1rem;display:flex;gap:.85rem}
+  .saddle-card:last-child{border-bottom:none}
+  .card-thumb{width:64px;height:64px;object-fit:contain;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0;border-radius:2px}
+  .card-thumb-empty{width:64px;height:64px;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:var(--muted);text-transform:uppercase;border-radius:2px}
   .card-body{flex:1;min-width:0}
-  .card-title{font-weight:600;color:var(--leather);font-size:.92rem;margin-bottom:.2rem}
-  .card-model{font-size:.75rem;color:var(--muted);font-family:monospace}
-  .card-meta{font-size:.78rem;color:var(--muted);margin-top:.35rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
-  .card-price{font-weight:700;color:var(--charcoal)}
-  .card-actions{margin-top:.5rem;display:flex;gap:.35rem;flex-wrap:wrap}
+  .card-title{font-weight:600;color:var(--leather);font-size:.95rem;margin-bottom:.15rem;line-height:1.25}
+  .card-model{font-size:.72rem;color:var(--muted);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card-meta{font-size:.78rem;color:var(--muted);margin-top:.35rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .card-price{font-weight:700;color:var(--charcoal);font-size:.88rem}
+  .card-actions{margin-top:.5rem;display:flex;gap:.4rem;flex-wrap:wrap}
+  /* Card action buttons meet 44px touch target */
+  .card-actions .btn-sm{min-height:38px;padding:.45rem .75rem;font-size:.7rem}
 
-  .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);padding:.75rem 1.5rem;font-size:.82rem;font-weight:600;border-radius:4px;opacity:0;transition:all .3s;z-index:1000;pointer-events:none;max-width:90vw;text-align:center}
+  /* ─── TOAST — safe area aware ─── */
+  .toast{
+    position:fixed;bottom:calc(1.25rem + var(--safe-bottom));left:50%;
+    transform:translateX(-50%) translateY(80px);
+    padding:.75rem 1.25rem;font-size:.82rem;font-weight:600;border-radius:4px;
+    opacity:0;transition:all .3s;z-index:1000;pointer-events:none;
+    max-width:calc(100vw - 2rem);text-align:center;
+  }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success)}
   .toast-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger)}
 
-  .scan-desc{font-size:.88rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.5}
-  .scan-dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:2.5rem 1.5rem;border:2px dashed var(--silver);background:rgba(200,169,110,.04);cursor:pointer;transition:all .2s;text-align:center}
-  .scan-dropzone:hover{border-color:var(--aged-gold);background:rgba(200,169,110,.08)}
+  /* ─── SCAN ─── */
+  .scan-desc{font-size:.85rem;color:var(--muted);margin-bottom:1rem;line-height:1.5}
+  .scan-dropzone{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;
+    padding:3rem 1.5rem;border:2px dashed var(--silver);background:rgba(200,169,110,.04);
+    cursor:pointer;transition:all .2s;text-align:center;min-height:140px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .scan-dropzone:active{border-color:var(--aged-gold);background:rgba(200,169,110,.08)}
   .scan-dropzone svg{color:var(--silver);transition:color .2s}
-  .scan-dropzone:hover svg{color:var(--aged-gold)}
   .scan-label{font-size:.88rem;font-weight:600;color:var(--charcoal)}
   .scan-hint{font-size:.72rem;color:var(--muted)}
   .scan-preview{position:relative;display:inline-block;max-width:100%}
-  .scan-preview img{max-width:100%;max-height:300px;object-fit:contain;border:1px solid rgba(200,169,110,.2)}
-  .scan-remove{position:absolute;top:.4rem;right:.4rem;width:28px;height:28px;border-radius:50%;border:none;background:var(--danger);color:var(--white);font-size:1.1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .scan-preview img{max-width:100%;max-height:250px;object-fit:contain;border:1px solid rgba(200,169,110,.2)}
+  .scan-remove{position:absolute;top:.4rem;right:.4rem;width:36px;height:36px;border-radius:50%;border:none;background:var(--danger);color:var(--white);font-size:1.2rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .scan-status{font-size:.82rem;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:.4rem}
   .scan-status.scanning{color:var(--aged-gold)}
   .scan-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--silver);border-top-color:var(--aged-gold);border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .hidden{display:none!important}
 
-  @media(max-width:699px){.desktop-table{display:none}.card-list{display:block}}
-  @media(min-width:700px){.card-list{display:none}.desktop-table{display:block}}
-  @media(min-width:600px){.admin-layout{padding:2rem 1.5rem}.form-grid{grid-template-columns:1fr 1fr}.form-group.full{grid-column:1/-1}.form-panel{padding:2rem}}
-  @media(min-width:900px){.admin-header{padding:1.25rem 2.5rem}.admin-layout{padding:2.5rem 2rem;gap:2rem}}
+  /* ─── DESKTOP BREAKPOINTS ─── */
+  @media(min-width:700px){
+    .card-list{display:none}.desktop-table{display:block}
+    .table-header{flex-direction:row;padding:1.25rem 1.5rem;border-bottom:2px solid var(--aged-gold)}
+    .table-header-top{flex:1}
+    .filter-scroll{margin:0;padding:0}
+  }
+  @media(min-width:600px){
+    .admin-layout{padding:1.5rem}
+    .form-grid{grid-template-columns:1fr 1fr}
+    .form-group.full{grid-column:1/-1}
+    .form-panel{padding:1.75rem}
+    .header-badge{display:block}
+    .admin-header{padding:1rem 1.5rem;flex-direction:row;align-items:center;justify-content:space-between}
+    .header-top{flex:1}
+  }
+  @media(min-width:900px){
+    .admin-header{padding:1.25rem 2.5rem}
+    .admin-layout{padding:2rem 2rem;gap:1.75rem}
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/supabase-js.min.js" crossorigin="anonymous"></script>
 </head>
@@ -136,22 +231,26 @@
 <div class="loading-bar" id="loadingBar"></div>
 
 <header class="admin-header">
-  <h1>Superior Saddlery — <span>Certified Used</span></h1>
-  <div class="header-right">
+  <div class="header-top">
+    <h1>Superior Saddlery — <span>Certified Used</span></h1>
+    <button class="btn-refresh" onclick="load()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+  </div>
+  <div class="header-meta">
     <div class="db-status"><span class="db-dot" id="dbDot"></span><span class="db-status-text" id="dbText">Connecting...</span></div>
-    <div class="header-badge">Admin Dashboard</div>
+    <div class="header-badge">Admin</div>
     <div class="header-count"><strong id="totalCount">0</strong> saddles</div>
   </div>
 </header>
 
 <div class="admin-layout">
 
-  <div class="form-panel scan-panel">
-    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="vertical-align:-3px;margin-right:.4rem;color:var(--aged-gold)"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan Sale Slip</h2>
-    <p class="scan-desc">Upload or photograph a sale slip, tag, or invoice. AI reads the details and pre-fills the form below.</p>
+  <!-- SCAN -->
+  <div class="form-panel">
+    <h2>Scan Sale Slip</h2>
+    <p class="scan-desc">Upload or photograph a sale slip, tag, or invoice. AI reads the details and pre-fills the form.</p>
     <div id="scanArea">
       <div class="scan-dropzone" id="scanDropzone" onclick="document.getElementById('scanFileInput').click()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <span class="scan-label">Tap to upload or take photo</span>
         <span class="scan-hint">JPG, PNG, PDF — sale slips, tags, invoices</span>
       </div>
@@ -161,12 +260,13 @@
       </div>
     </div>
     <input type="file" id="scanFileInput" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="handleScanFile(event)">
-    <div class="form-actions" style="margin-top:1rem">
+    <div class="form-actions" style="margin-top:.85rem">
       <button class="btn btn-primary" id="scanBtn" onclick="scanSlip()" disabled>Scan &amp; Fill Form</button>
       <div class="scan-status" id="scanStatus"></div>
     </div>
   </div>
 
+  <!-- ADD/EDIT FORM -->
   <div class="form-panel" id="addFormPanel">
     <h2 id="formTitle">Add Saddle</h2>
     <input type="hidden" id="f-edit-id" value="">
@@ -176,19 +276,22 @@
       <div class="form-group"><label for="f-category">Category</label><input type="text" id="f-category" placeholder="e.g. Reining · Square Skirt" value="Certified Used"></div>
       <div class="form-group"><label for="f-status">Status</label><select id="f-status"><option value="active">Active — For Sale</option><option value="pending">Pending — Review</option><option value="sold">Sold</option><option value="archived">Archived</option></select></div>
       <div class="form-group full">
-        <label>Images <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">(#1 is primary — up to 5)</span></label>
+        <label>Images <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">(#1 is primary)</span></label>
         <div class="img-fields">
           <input type="url" id="f-img-1" placeholder="#1 Primary image URL">
-          <input type="url" id="f-img-2" placeholder="#2 Additional angle">
-          <input type="url" id="f-img-3" placeholder="#3 Additional angle">
-          <input type="url" id="f-img-4" placeholder="#4 Detail close-up">
-          <input type="url" id="f-img-5" placeholder="#5 Detail close-up">
+          <div class="img-extras" id="imgExtras">
+            <input type="url" id="f-img-2" placeholder="#2 Additional angle">
+            <input type="url" id="f-img-3" placeholder="#3 Additional angle">
+            <input type="url" id="f-img-4" placeholder="#4 Detail close-up">
+            <input type="url" id="f-img-5" placeholder="#5 Detail close-up">
+          </div>
+          <button class="img-toggle" id="imgToggle" type="button" onclick="toggleImgExtras()">+ Add more images (up to 5)</button>
         </div>
       </div>
       <div class="form-group"><label for="f-url">Product Page URL</label><input type="url" id="f-url" placeholder="https://superior-saddlery.com/product/..."></div>
-      <div class="form-group"><label for="f-price">Price</label><input type="text" id="f-price" placeholder="e.g. $3,495 or Call for pricing"></div>
+      <div class="form-group"><label for="f-price">Price</label><input type="text" id="f-price" placeholder="e.g. $3,495"></div>
       <div class="form-group"><label for="f-stock">Stock Number</label><input type="text" id="f-stock" placeholder="e.g. CU-2026-001"></div>
-      <div class="form-group full"><label for="f-desc">Description</label><textarea id="f-desc" placeholder="Lightly used show saddle in excellent condition."></textarea><div class="hint">Condition, history, and selling points.</div></div>
+      <div class="form-group full"><label for="f-desc">Description</label><textarea id="f-desc" placeholder="Lightly used show saddle in excellent condition."></textarea><div class="hint">Condition, history, selling points.</div></div>
       <div class="form-group full"><label for="f-specs">Specs</label><textarea id="f-specs" placeholder="Glass Encased Wood Tree&#10;Seat Sizes 15&quot;–16.5&quot;&#10;Dropped-D Rigging"></textarea><div class="hint">One spec per line.</div></div>
     </div>
     <div class="form-actions">
@@ -198,14 +301,23 @@
     </div>
   </div>
 
+  <!-- INVENTORY -->
   <div class="table-panel">
     <div class="table-header">
-      <h2>Inventory</h2>
-      <div class="filter-tabs"><button class="filter-tab active" onclick="setFilter('all')">All</button><button class="filter-tab" onclick="setFilter('active')">Active</button><button class="filter-tab" onclick="setFilter('sold')">Sold</button><button class="filter-tab" onclick="setFilter('pending')">Pending</button><button class="filter-tab" onclick="setFilter('archived')">Archived</button></div>
-      <div class="form-actions" style="margin:0">
-        <button class="btn btn-export" onclick="exportJSON()">Export JSON</button>
-        <button class="btn btn-ghost" onclick="importJSON()">Import</button>
+      <div class="table-header-top">
+        <h2>Inventory</h2>
+        <div class="form-actions" style="margin:0">
+          <button class="btn btn-export" onclick="exportJSON()">Export</button>
+          <button class="btn btn-ghost" onclick="importJSON()">Import</button>
+        </div>
       </div>
+      <div class="filter-scroll"><div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all')">All</button>
+        <button class="filter-tab" onclick="setFilter('active')">Active</button>
+        <button class="filter-tab" onclick="setFilter('sold')">Sold</button>
+        <button class="filter-tab" onclick="setFilter('pending')">Pending</button>
+        <button class="filter-tab" onclick="setFilter('archived')">Archived</button>
+      </div></div>
     </div>
     <div class="desktop-table"><div class="table-scroll"><table><thead><tr><th>Image</th><th>Name</th><th>Stock #</th><th>Price</th><th>Status</th><th>Category</th><th></th></tr></thead><tbody id="tableBody"></tbody></table></div></div>
     <div class="card-list" id="cardList"></div>
@@ -225,7 +337,13 @@ let saddles=[],currentFilter='all';
 
 function showLoading(){document.getElementById('loadingBar').classList.add('active')}
 function hideLoading(){document.getElementById('loadingBar').classList.remove('active')}
-function setDbStatus(s){const d=document.getElementById('dbDot'),t=document.getElementById('dbText');d.className='db-dot '+(s==='ok'?'connected':s==='err'?'error':'');t.textContent=s==='ok'?'Connected':s==='err'?'Error':'Connecting...'}
+function setDbStatus(s){const d=document.getElementById('dbDot'),t=document.getElementById('dbText');d.className='db-dot '+(s==='ok'?'connected':s==='err'?'error':'');t.textContent=s==='ok'?'Connected':s==='err'?'Offline':'Connecting...'}
+
+function toggleImgExtras(){
+  const el=document.getElementById('imgExtras'),btn=document.getElementById('imgToggle');
+  const open=el.classList.toggle('open');
+  btn.textContent=open?'− Hide extra image fields':'+ Add more images (up to 5)';
+}
 
 async function load(){
   showLoading();
@@ -234,7 +352,7 @@ async function load(){
     if(error)throw error;
     saddles=(data||[]).map(r=>({id:r.id,title:r.title,model:r.model,category:r.category||'Certified Used',img:r.img||'',images:r.images||[],url:r.url||'#',price:r.price||'',stockNo:r.stock_no||'',description:r.description||'',specs:r.specs||[],status:r.status||'active'}));
     setDbStatus('ok');
-  }catch(e){console.error('Load error:',e);toast('Failed to load — check connection','danger');setDbStatus('err');saddles=[]}
+  }catch(e){console.error('Load:',e);toast('Connection failed — tap refresh to retry','danger');setDbStatus('err');saddles=[]}
   hideLoading();render();
 }
 
@@ -247,6 +365,7 @@ function render(){
   document.getElementById('totalCount').textContent=saddles.length;
   if(!list.length){tbody.innerHTML='';cards.innerHTML='';empty.style.display='block';empty.textContent=saddles.length?`No ${currentFilter} saddles.`:'No saddles yet. Add your first one above.';return}
   empty.style.display='none';
+
   tbody.innerHTML=list.map(s=>{const idx=saddles.indexOf(s);return`<tr>
     <td>${s.img?`<img class="td-thumb" src="${s.img}" alt="${esc(s.title)}">`:'<div class="td-thumb-empty">No img</div>'}</td>
     <td><span class="td-title">${esc(s.title)}</span><br><span class="td-model">${esc(s.model)}</span></td>
@@ -256,10 +375,11 @@ function render(){
     <td>${esc(s.category)}</td>
     <td><div class="row-actions"><button class="btn-sm" onclick="editSaddle(${idx})">Edit</button>${s.status==='active'?`<button class="btn-sm" onclick="markSold(${idx})">Sold</button>`:''}<button class="btn-sm del" onclick="deleteSaddle(${idx})">Del</button></div></td>
   </tr>`}).join('');
+
   cards.innerHTML=list.map(s=>{const idx=saddles.indexOf(s);return`<div class="saddle-card">
     ${s.img?`<img class="card-thumb" src="${s.img}" alt="${esc(s.title)}">`:'<div class="card-thumb-empty">No img</div>'}
     <div class="card-body"><div class="card-title">${esc(s.title)}</div><div class="card-model">${esc(s.model)}</div>
-    <div class="card-meta"><span class="card-price">${esc(s.price||'No price')}</span><span class="status-badge status-${s.status}">${s.status}</span><span>${esc(s.stockNo||'')}</span></div>
+    <div class="card-meta"><span class="card-price">${esc(s.price||'No price')}</span><span class="status-badge status-${s.status}">${s.status}</span></div>
     <div class="card-actions"><button class="btn-sm" onclick="editSaddle(${idx})">Edit</button>${s.status==='active'?`<button class="btn-sm" onclick="markSold(${idx})">Sold</button>`:''}<button class="btn-sm del" onclick="deleteSaddle(${idx})">Del</button></div></div></div>`}).join('');
 }
 
@@ -273,7 +393,7 @@ async function saveSaddle(){
     if(editId){const{error}=await sb.from('used_saddles').update(row).eq('id',parseInt(editId));if(error)throw error;toast(`Updated: ${title}`,'success')}
     else{const{error}=await sb.from('used_saddles').insert([row]);if(error)throw error;toast(`Added: ${title}`,'success')}
     await load();clearForm();
-  }catch(e){console.error('Save error:',e);toast(`Failed: ${e.message}`,'danger');hideLoading()}
+  }catch(e){console.error('Save:',e);toast(`Failed: ${e.message}`,'danger');hideLoading()}
 }
 
 function editSaddle(i){
@@ -284,6 +404,7 @@ function editSaddle(i){
   document.getElementById('f-category').value=s.category;
   document.getElementById('f-status').value=s.status;
   (s.images||[]).forEach((u,j)=>{if(j<5)document.getElementById(`f-img-${j+1}`).value=u});
+  if(s.images&&s.images.length>1){document.getElementById('imgExtras').classList.add('open');document.getElementById('imgToggle').textContent='− Hide extra image fields'}
   document.getElementById('f-url').value=s.url==='#'?'':s.url;
   document.getElementById('f-price').value=s.price;
   document.getElementById('f-stock').value=s.stockNo;
@@ -298,12 +419,12 @@ function editSaddle(i){
 async function markSold(i){
   const s=saddles[i];if(!confirm(`Mark "${s.title}" as sold?`))return;
   showLoading();
-  try{const{error}=await sb.from('used_saddles').update({status:'sold'}).eq('id',s.id);if(error)throw error;await load();toast(`Marked sold: ${s.title}`,'success')}
+  try{const{error}=await sb.from('used_saddles').update({status:'sold'}).eq('id',s.id);if(error)throw error;await load();toast(`Sold: ${s.title}`,'success')}
   catch(e){toast(`Failed: ${e.message}`,'danger');hideLoading()}
 }
 
 async function deleteSaddle(i){
-  const s=saddles[i];if(!confirm(`Delete "${s.title}"? This cannot be undone.`))return;
+  const s=saddles[i];if(!confirm(`Delete "${s.title}"?`))return;
   showLoading();
   try{const{error}=await sb.from('used_saddles').delete().eq('id',s.id);if(error)throw error;await load();toast(`Deleted: ${s.title}`,'danger')}
   catch(e){toast(`Failed: ${e.message}`,'danger');hideLoading()}
@@ -318,10 +439,12 @@ function clearForm(){
   document.getElementById('formTitle').textContent='Add Saddle';
   document.getElementById('saveBtn').textContent='Add Saddle';
   document.getElementById('cancelEditBtn').classList.add('hidden');
+  document.getElementById('imgExtras').classList.remove('open');
+  document.getElementById('imgToggle').textContent='+ Add more images (up to 5)';
 }
 
 function exportJSON(){
-  const list=filtered();if(!list.length){toast('No saddles to export','danger');return}
+  const list=filtered();if(!list.length){toast('Nothing to export','danger');return}
   const blob=new Blob([JSON.stringify(list,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='used-saddles.json';a.click();URL.revokeObjectURL(a.href);
   toast(`Exported ${list.length} saddles`,'success');
@@ -336,7 +459,7 @@ function handleImport(event){
     try{
       const data=JSON.parse(e.target.result);if(!Array.isArray(data))throw new Error('Not an array');
       if(!data.every(s=>s.title&&s.model))throw new Error('Missing title or model');
-      if(saddles.length&&!confirm(`Replace ${saddles.length} saddles with ${data.length} from file?`))return;
+      if(saddles.length&&!confirm(`Replace ${saddles.length} saddles with ${data.length}?`))return;
       showLoading();await sb.from('used_saddles').delete().neq('id',0);
       const rows=data.map(s=>({title:s.title,model:s.model,category:s.category||'Certified Used',img:s.img||(s.images&&s.images[0])||'',images:s.images||(s.img?[s.img]:[]),url:s.url||'#',price:s.price||'',stock_no:s.stockNo||s.stock_no||'',description:s.description||'',specs:s.specs||[],status:s.status||'active'}));
       const{error}=await sb.from('used_saddles').insert(rows);if(error)throw error;
@@ -345,7 +468,7 @@ function handleImport(event){
   };reader.readAsText(file);event.target.value='';
 }
 
-function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast toast-${type} show`;setTimeout(()=>el.classList.remove('show'),2500)}
+function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast toast-${type} show`;setTimeout(()=>el.classList.remove('show'),3000)}
 
 let scanBase64=null,scanMediaType=null;
 function handleScanFile(event){
@@ -364,7 +487,7 @@ function clearScan(){scanBase64=null;scanMediaType=null;document.getElementById(
 async function scanSlip(){
   if(!scanBase64){toast('Upload an image first','danger');return}
   const btn=document.getElementById('scanBtn'),status=document.getElementById('scanStatus');
-  btn.disabled=true;btn.textContent='Scanning...';status.className='scan-status scanning';status.innerHTML='<span class="scan-spinner"></span> AI is reading the sale slip...';
+  btn.disabled=true;btn.textContent='Scanning...';status.className='scan-status scanning';status.innerHTML='<span class="scan-spinner"></span> AI reading slip...';
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:scanMediaType,data:scanBase64}},{type:'text',text:'You are a saddle inventory scanner for Superior Saddlery. Extract all details from this sale slip/tag/invoice. Return ONLY valid JSON: {"title":"","model":"","category":"","price":"","stockNo":"","description":"","specs":[]}. Empty string if unknown. Category defaults to "Certified Used".'}]}]})});
@@ -377,9 +500,9 @@ async function scanSlip(){
     if(parsed.stockNo)document.getElementById('f-stock').value=parsed.stockNo;
     if(parsed.description)document.getElementById('f-desc').value=parsed.description;
     if(parsed.specs&&parsed.specs.length)document.getElementById('f-specs').value=parsed.specs.join('\n');
-    status.className='scan-status';status.innerHTML='<span style="color:var(--success);font-weight:600">✓ Form filled — review and hit Add Saddle</span>';
-    toast('Sale slip scanned','success');document.getElementById('addFormPanel').scrollIntoView({behavior:'smooth'});
-  }catch(err){status.className='scan-status';status.innerHTML=`<span style="color:var(--danger)">Scan failed: ${err.message}</span>`;toast('Scan failed','danger')}
+    status.className='scan-status';status.innerHTML='<span style="color:var(--success);font-weight:600">✓ Review form below</span>';
+    toast('Slip scanned — review the form','success');document.getElementById('addFormPanel').scrollIntoView({behavior:'smooth'});
+  }catch(err){status.className='scan-status';status.innerHTML=`<span style="color:var(--danger)">Failed: ${err.message}</span>`;toast('Scan failed','danger')}
   btn.disabled=false;btn.textContent='Scan & Fill Form';
 }
 
