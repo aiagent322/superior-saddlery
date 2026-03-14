@@ -1050,6 +1050,7 @@
     .saddle-grid { gap: 2.5rem; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/supabase-js.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -2092,6 +2093,9 @@
 
   <div class="show-more-wrap" id="usedShowMoreWrap">
     <button class="show-more-btn" id="usedShowMoreBtn" onclick="window._usedShowMore()">Show More Saddles <span id="usedShowMoreCount"></span></button>
+  </div>
+  <div class="show-more-wrap hidden" id="usedViewAllLink" style="padding-top:0.75rem">
+    <a href="/certified-used" class="show-more-btn" style="text-decoration:none;background:var(--aged-gold);color:var(--warm-black)">View All Certified Used Saddles →</a>
   </div>
 </section>
 
@@ -3160,7 +3164,7 @@
     const counts = tags.map(t => [t, cats.filter(c => c.textContent.includes(t)).length]);
     let html = `<button class="cat-chip active" data-tag="all" onclick="this.parentNode._filter('all')">New (${cards.length})</button>`;
     counts.forEach(([t, n]) => { html += `<button class="cat-chip" data-tag="${t}" onclick="this.parentNode._filter('${t}')">${t} (${n})</button>`; });
-    html += `<button class="cat-chip cat-chip-used" data-tag="used" onclick="document.getElementById('certified-used').scrollIntoView({behavior:'smooth'})">Certified Used (26)</button>`;
+    html += `<button class="cat-chip cat-chip-used" data-tag="used" onclick="document.getElementById('certified-used').scrollIntoView({behavior:'smooth'})">Certified Used (<span id="usedChipCount">0</span>)</button>`;
     bar.innerHTML = html;
     bar._filter = setFilter;
     render();
@@ -3346,71 +3350,102 @@
     });
   })();
 
-  // ─── Certified Used Saddles: 26 placeholder cards ───
+  // ─── Certified Used Saddles: Live from Supabase ───
   (function() {
-    const USED_COUNT = 26;
+    const SB_URL = 'https://eyayfiahbkczisdxwvup.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5YXlmaWFoYmtjemlzZHh3dnVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDc0MjEsImV4cCI6MjA4OTA4MzQyMX0.LpHerIHN30QJ-mOQQSRP5bYks-IoAAq8dPJJqpK1Vq8';
     const PAGE_SIZE = 12;
     const grid = document.getElementById('usedGrid');
     const wrap = document.getElementById('usedShowMoreWrap');
     const countSpan = document.getElementById('usedShowMoreCount');
     const resultsEl = document.getElementById('usedResultsCount');
+    const chipCount = document.getElementById('usedChipCount');
+    let usedSaddles = [];
     let visible = PAGE_SIZE;
 
-    // Placeholder data — fill in when real data arrives
-    const usedSaddles = Array.from({ length: USED_COUNT }, (_, i) => ({
-      title: `Certified Used Saddle ${i + 1}`,
-      category: 'Certified Used',
-      model: `Model Nr. TBD-${String(i + 1).padStart(2, '0')}`,
-      img: '',
-      url: '#',
-      specs: ['Details coming soon — contact Superior Saddlery for availability']
-    }));
+    async function fetchUsed() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/used_saddles?status=eq.active&order=created_at.desc`, {
+          headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+        });
+        if (!res.ok) throw new Error('Fetch failed');
+        const data = await res.json();
+        usedSaddles = data.map(r => ({
+          id: r.id, title: r.title, model: r.model,
+          category: r.category || 'Certified Used',
+          img: r.img || '', images: r.images || [],
+          url: r.url || '#', price: r.price || '',
+          stockNo: r.stock_no || '',
+          description: r.description || '',
+          specs: r.specs || ['Contact Superior Saddlery for details']
+        }));
+      } catch(e) {
+        console.error('Used saddles fetch:', e);
+        usedSaddles = [];
+      }
+      if (chipCount) chipCount.textContent = usedSaddles.length;
+      renderUsedCards();
+    }
 
-    // Render cards into grid
-    grid.innerHTML = usedSaddles.map((s, i) => `
-    <!-- USED CARD ${i + 1} -->
-    <div class="saddle-card" role="button" tabindex="0" aria-label="${s.title} — ${s.category}. View details." onclick="openUsedDetail(${i})">
-      <div class="card-image">
-        <span class="used-badge">Certified Used</span>
-        <span class="card-model">${s.model.replace('Model Nr. ','')}</span>
-        ${s.img ? `<img loading="lazy" src="${s.img}" alt="${s.title}">` : '<div style="height:160px;display:flex;align-items:center;justify-content:center;opacity:0.3;font-size:0.8rem;color:var(--muted)">Photo Coming Soon</div>'}
-      </div>
-      <div class="card-body">
-        <div class="card-category">${s.category}</div>
-        <h3>${s.title}</h3>
-        <p class="card-specs">${s.specs.join(' · ')}</p>
-        <span class="card-link">View Details<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-      </div>
-    </div>`).join('');
+    function renderUsedCards() {
+      if (!usedSaddles.length) {
+        grid.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.9rem">No certified used saddles available right now. Check back soon.</div>';
+        wrap.classList.add('hidden');
+        resultsEl.classList.add('hidden');
+        return;
+      }
 
-    const cards = [...grid.querySelectorAll('.saddle-card')];
+      grid.innerHTML = usedSaddles.map((s, i) => `
+      <div class="saddle-card${i >= visible ? ' hidden' : ''}" role="button" tabindex="0" aria-label="${s.title}" onclick="openUsedDetail(${i})">
+        <div class="card-image">
+          <span class="used-badge">Certified Used</span>
+          ${s.price ? `<span class="card-model" style="background:var(--success);color:var(--white)">${s.price}</span>` : `<span class="card-model">${s.model.replace('Model Nr. ','')}</span>`}
+          ${s.img ? `<img loading="lazy" src="${s.img}" alt="${s.title}">` : '<div style="height:160px;display:flex;align-items:center;justify-content:center;opacity:0.3;font-size:0.8rem;color:var(--muted)">Photo Coming Soon</div>'}
+        </div>
+        <div class="card-body">
+          <div class="card-category">${s.category}</div>
+          <h3>${s.title}</h3>
+          <p class="card-specs">${s.specs.slice(0,3).join(' · ')}</p>
+          <span class="card-link">View Details<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+        </div>
+      </div>`).join('');
 
-    // Keyboard nav for used cards
-    cards.forEach((card, i) => {
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUsedDetail(i); }
+      // Add keyboard nav
+      grid.querySelectorAll('.saddle-card').forEach((card, i) => {
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUsedDetail(i); }
+        });
       });
-    });
 
-    function renderUsed() {
+      updateUsedPagination();
+
+      // "View All" link if many saddles
+      if (usedSaddles.length > 3) {
+        const viewAllEl = document.getElementById('usedViewAllLink');
+        if (viewAllEl) viewAllEl.classList.remove('hidden');
+      }
+    }
+
+    function updateUsedPagination() {
+      const total = usedSaddles.length;
+      const showing = Math.min(visible, total);
+      const remaining = total - visible;
+      const cards = [...grid.querySelectorAll('.saddle-card')];
       cards.forEach((c, i) => {
         c.classList.toggle('hidden', i >= visible);
         if (i >= visible - PAGE_SIZE && i < visible) c.classList.add('card-enter');
       });
-      const showing = Math.min(visible, USED_COUNT);
-      const remaining = USED_COUNT - visible;
-      resultsEl.textContent = remaining > 0 || showing < USED_COUNT ? `Showing ${showing} of ${USED_COUNT} saddles` : '';
-      resultsEl.classList.toggle('hidden', showing >= USED_COUNT && remaining <= 0);
+      resultsEl.textContent = remaining > 0 ? `Showing ${showing} of ${total} saddles` : '';
+      resultsEl.classList.toggle('hidden', remaining <= 0);
       if (remaining > 0) {
         wrap.classList.remove('hidden');
-        countSpan.textContent = `(${Math.min(remaining, PAGE_SIZE)} more of ${remaining})`;
+        countSpan.textContent = `(${Math.min(remaining, PAGE_SIZE)} more)`;
       } else {
         wrap.classList.add('hidden');
       }
     }
 
-    window._usedShowMore = function() { visible += PAGE_SIZE; renderUsed(); };
-    renderUsed();
+    window._usedShowMore = function() { visible += PAGE_SIZE; updateUsedPagination(); };
 
     // Detail modal for used saddles
     window.openUsedDetail = function(index) {
@@ -3421,7 +3456,10 @@
       document.getElementById('usedDetailTitle').textContent = s.title;
       document.getElementById('usedDetailModel').textContent = s.model;
       document.getElementById('usedDetailLink').href = s.url;
-      document.getElementById('usedDetailSpecs').innerHTML = s.specs.map(spec => `<li>${spec}</li>`).join('');
+      const specsHtml = s.specs.map(spec => `<li>${spec}</li>`).join('');
+      const priceHtml = s.price ? `<li style="font-weight:700;color:var(--success);font-size:1.1rem">${s.price}</li>` : '';
+      const descHtml = s.description ? `<li style="font-style:italic;color:var(--muted)">${s.description}</li>` : '';
+      document.getElementById('usedDetailSpecs').innerHTML = priceHtml + descHtml + specsHtml;
       const overlay = document.getElementById('usedDetailOverlay');
       overlay.classList.add('active');
       document.body.style.overflow = 'hidden';
@@ -3443,10 +3481,12 @@
       }
     };
 
-    // Keyboard dismiss for used detail
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && document.getElementById('usedDetailOverlay').classList.contains('active')) closeUsedDetail();
     });
+
+    // Fetch on page load
+    fetchUsed();
   })();
 </script>
 
