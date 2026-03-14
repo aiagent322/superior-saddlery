@@ -219,6 +219,7 @@
   .hidden{display:none!important}
 
   /* ─── TRADE-IN CARDS ─── */
+  .ti-card-list{display:block}
   .ti-card{background:var(--white);border-bottom:1px solid rgba(200,169,110,.12);padding:1rem}
   .ti-card:last-child{border-bottom:none}
   .ti-card-top{display:flex;gap:.85rem}
@@ -381,7 +382,7 @@
         <button class="filter-tab" onclick="setTiFilter('rejected')">Rejected</button>
       </div></div>
     </div>
-    <div class="card-list" id="tiCardList" style="display:block"></div>
+    <div class="ti-card-list" id="tiCardList"></div>
     <div class="empty-state" id="tiEmptyState">No trade-in requests yet.</div>
   </div>
 
