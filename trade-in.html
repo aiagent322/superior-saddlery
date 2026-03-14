@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Trade-In Your Saddle | Superior Saddlery</title>
+<meta name="description" content="Submit your used saddle for trade-in at Superior Saddlery. Upload photos, describe condition, and get an offer within 48 hours.">
+<link rel="canonical" href="https://superior-saddlery.pages.dev/trade-in">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leather:#5C3A1E;--saddle-tan:#C8A96E;--aged-gold:#B8943E;--cream:#F5F0E8;
+  --charcoal:#2A2420;--warm-black:#1A1512;--silver:#D4D0C8;--deep-brown:#3B2614;
+  --white:#FFFFFF;--muted:#8B7D6F;--success:#3D7A4A;--success-bg:#E6F0E8;
+  --danger:#A63D2F;--danger-bg:#F5E6E3;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--cream);color:var(--charcoal);min-height:100dvh}
+
+.site-header{
+  background:var(--warm-black);padding:calc(.75rem + var(--safe-top)) 1rem .75rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  position:sticky;top:0;z-index:100;
+}
+.site-header h1{font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);font-weight:700}
+.site-header h1 span{color:var(--aged-gold)}
+.site-header h1 a{color:inherit;text-decoration:none}
+.back-link{color:var(--aged-gold);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:.3rem;white-space:nowrap}
+
+.page-hero{background:var(--warm-black);padding:2.5rem 1.25rem 3rem;text-align:center;border-bottom:3px solid var(--aged-gold)}
+.hero-badge{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--aged-gold);border:1px solid rgba(184,148,62,.4);padding:.25rem .75rem;margin-bottom:.75rem}
+.page-hero h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--cream);font-weight:700;margin-bottom:.5rem}
+.page-hero h2 em{color:var(--aged-gold);font-style:normal}
+.page-hero p{font-size:.88rem;color:var(--silver);max-width:500px;margin:0 auto;line-height:1.55}
+
+.page-layout{max-width:680px;margin:0 auto;padding:1.5rem 1rem 3rem}
+
+/* Steps indicator */
+.steps{display:flex;justify-content:center;gap:.25rem;margin-bottom:1.5rem;padding:0 .5rem}
+.step{flex:1;max-width:120px;text-align:center;padding:.6rem .25rem;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid var(--silver);transition:all .3s}
+.step.active{color:var(--leather);border-color:var(--aged-gold)}
+.step.done{color:var(--success);border-color:var(--success)}
+
+.form-panel{background:var(--white);border:1px solid rgba(200,169,110,.2);padding:1.5rem 1.25rem}
+.form-panel h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--leather);margin-bottom:1rem;padding-bottom:.65rem;border-bottom:2px solid var(--aged-gold)}
+.form-grid{display:grid;grid-template-columns:1fr;gap:.85rem}
+.form-group label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.form-group label .req{color:var(--danger);font-weight:700}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;padding:.7rem .85rem;font-family:'Source Sans 3',sans-serif;font-size:16px;
+  color:var(--charcoal);background:var(--cream);border:1.5px solid var(--silver);
+  outline:none;transition:border-color .2s;border-radius:0;-webkit-appearance:none;appearance:none;
+}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--aged-gold)}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-group select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7D6F' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center;padding-right:2.2rem}
+.form-group .hint{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+/* Photo upload area */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
+.photo-slot{
+  aspect-ratio:1;background:var(--cream);border:2px dashed var(--silver);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+.photo-slot:active{border-color:var(--aged-gold);background:rgba(184,148,62,.06)}
+.photo-slot svg{color:var(--silver);width:24px;height:24px}
+.photo-slot span{font-size:.6rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.photo-slot.has-photo{border-style:solid;border-color:var(--aged-gold)}
+.photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo-slot .remove-photo{
+  position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;
+  background:var(--danger);color:var(--white);border:none;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;
+  line-height:1;
+}
+.photo-slot.uploading::after{
+  content:'';position:absolute;inset:0;background:rgba(245,240,232,.7);
+  display:flex;align-items:center;justify-content:center;
+}
+.photo-required{font-size:.72rem;color:var(--muted);margin-top:.35rem}
+
+.section-gap{height:1.25rem}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  min-height:48px;padding:.7rem 2rem;width:100%;
+  font-family:'Source Sans 3',sans-serif;font-size:.88rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--leather);color:var(--cream)}
+.btn-primary:hover{background:var(--deep-brown)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;color:var(--muted);border:1.5px solid var(--silver)}
+
+.submit-status{text-align:center;margin-top:.75rem;font-size:.82rem;font-weight:500;min-height:1.5rem}
+
+/* Success screen */
+.success-screen{display:none;text-align:center;padding:3rem 1.5rem}
+.success-icon{width:64px;height:64px;margin:0 auto 1rem;background:var(--success-bg);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.success-icon svg{width:32px;height:32px;color:var(--success)}
+.success-screen h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--leather);margin-bottom:.5rem}
+.success-screen p{font-size:.9rem;color:var(--muted);line-height:1.6;max-width:400px;margin:0 auto}
+.success-ref{font-family:monospace;font-size:.88rem;color:var(--aged-gold);font-weight:700;margin:1rem 0}
+.success-screen .btn{max-width:300px;margin:1.5rem auto 0}
+
+.toast{
+  position:fixed;bottom:calc(1.25rem + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(80px);padding:.75rem 1.25rem;
+  font-size:.82rem;font-weight:600;border-radius:4px;opacity:0;transition:all .3s;
+  z-index:1000;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success)}
+.toast-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger)}
+
+.site-footer{background:var(--warm-black);padding:1.5rem 1rem;text-align:center;border-top:3px solid var(--aged-gold)}
+.footer-logo{height:40px;opacity:.6;margin-bottom:.5rem}
+.footer-links{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.footer-links a{color:var(--silver);font-size:.75rem;text-decoration:none;font-weight:500}
+.footer-copy{font-size:.65rem;color:var(--muted);margin-top:.75rem}
+
+.hidden{display:none!important}
+
+@media(min-width:600px){
+  .form-grid{grid-template-columns:1fr 1fr}
+  .form-group.full{grid-column:1/-1}
+  .photo-grid{grid-template-columns:repeat(5,1fr)}
+  .page-hero h2{font-size:2.2rem}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/supabase-js.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <a class="back-link" href="/">← Back to Catalog</a>
+    <h1><a href="/">Superior Saddlery — <span>Trade-In</span></a></h1>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="hero-badge">Get Value for Your Saddle</div>
+  <h2>Trade-In <em>Your Saddle</em></h2>
+  <p>Submit your used saddle details and photos below. We'll review your submission and get back to you within 48 hours with an offer.</p>
+</section>
+
+<div class="page-layout">
+
+  <div class="steps">
+    <div class="step active" id="step1">1. Saddle Details</div>
+    <div class="step" id="step2">2. Photos</div>
+    <div class="step" id="step3">3. Contact</div>
+  </div>
+
+  <!-- FORM -->
+  <div id="formView">
+    <div class="form-panel">
+      <h3>Saddle Details</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Brand / Maker <span class="req">*</span></label><input type="text" id="ti-brand" placeholder="e.g. Superior Saddlery, Billy Cook, Circle Y"></div>
+        <div class="form-group"><label>Model Name</label><input type="text" id="ti-model" placeholder="e.g. Cade McCutcheon Reiner"></div>
+        <div class="form-group"><label>Year (approx.)</label><input type="text" id="ti-year" placeholder="e.g. 2022"></div>
+        <div class="form-group"><label>Seat Size</label><input type="text" id="ti-seat" placeholder='e.g. 16"'></div>
+        <div class="form-group">
+          <label>Condition <span class="req">*</span></label>
+          <select id="ti-condition">
+            <option value="">Select condition...</option>
+            <option value="excellent">Excellent — Like new, minimal use</option>
+            <option value="good">Good — Normal wear, fully functional</option>
+            <option value="fair">Fair — Visible wear, may need minor repair</option>
+            <option value="poor">Poor — Heavy wear, needs significant work</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Asking Price</label><input type="text" id="ti-price" placeholder="e.g. $2,500 or Open to offers"><div class="hint">Leave blank if you'd like us to make an offer.</div></div>
+        <div class="form-group full"><label>Description</label><textarea id="ti-desc" placeholder="Tell us about your saddle — history, how it was used, any custom work, repairs, or details a buyer should know."></textarea></div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <div class="form-panel">
+      <h3>Photos</h3>
+      <p class="hint" style="margin-bottom:.75rem">Tap a box to upload a photo. At least one photo is required. More photos help us give you a better offer.</p>
+      <div class="photo-grid" id="photoGrid">
+        <div class="photo-slot" onclick="pickPhoto(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Left side</span></div>
+        <div class="photo-slot" onclick="pickPhoto(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Right side</span></div>
+        <div class="photo-slot" onclick="pickPhoto(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Seat</span></div>
+        <div class="photo-slot" onclick="pickPhoto(3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Tooling</span></div>
+        <div class="photo-slot" onclick="pickPhoto(4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Extra</span></div>
+      </div>
+      <div class="photo-required">At least 1 photo required. 3+ recommended for best offer.</div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <div class="form-panel">
+      <h3>Your Contact Info</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="ti-name" placeholder="Your full name"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="ti-phone" placeholder="(480) 555-1234"></div>
+        <div class="form-group full"><label>Email <span class="req">*</span></label><input type="email" id="ti-email" placeholder="you@email.com"><div class="hint">We'll send your offer to this address.</div></div>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <button class="btn btn-primary" id="submitBtn" onclick="submitTradeIn()">Submit Trade-In Request</button>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successView">
+    <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <h3>Trade-In Submitted</h3>
+    <p>We've received your saddle details and photos. Our team will review your submission and get back to you within 48 hours with an offer.</p>
+    <div class="success-ref" id="refNumber"></div>
+    <p style="font-size:.78rem">Keep this reference number for your records. We'll contact you at the email address you provided.</p>
+    <a href="/" class="btn btn-secondary">← Back to Superior Saddlery</a>
+  </div>
+
+</div>
+
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+
+<footer class="site-footer">
+  <img class="footer-logo" src="https://superior-saddlery.com/wp-content/uploads/2018/10/Superior-Logo-2018-small-1.png" alt="Superior Saddlery">
+  <div class="footer-links">
+    <a href="/">New Saddles</a>
+    <a href="/certified-used">Certified Used</a>
+    <a href="https://superior-saddlery.com" target="_blank">Superior Saddlery</a>
+  </div>
+  <div class="footer-copy">&copy; 2026 Superior Saddlery, LLC. All rights reserved.</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SUPABASE_URL='https://eyayfiahbkczisdxwvup.supabase.co';
+var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5YXlmaWFoYmtjemlzZHh3dnVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDc0MjEsImV4cCI6MjA4OTA4MzQyMX0.LpHerIHN30QJ-mOQQSRP5bYks-IoAAq8dPJJqpK1Vq8';
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+var photoUrls=['','','','',''];
+var pickTarget=0;
+
+function pickPhoto(index){
+  pickTarget=index;
+  document.getElementById('photoInput').value='';
+  document.getElementById('photoInput').click();
+}
+
+document.getElementById('photoInput').addEventListener('change',async function(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var index=pickTarget;
+  var slot=document.querySelectorAll('.photo-slot')[index];
+
+  // Show preview immediately
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    slot.classList.add('has-photo');
+    slot.innerHTML=`<img src="${ev.target.result}" alt="Photo ${index+1}"><button class="remove-photo" onclick="event.stopPropagation();removePhoto(${index})">&times;</button>`;
+  };
+  reader.readAsDataURL(file);
+
+  // Upload to Supabase Storage
+  slot.classList.add('uploading');
+  try{
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    var filename=`trade-in-${Date.now()}-${index}.${ext}`;
+    var buf=await file.arrayBuffer();
+    var res=await fetch(`${SUPABASE_URL}/storage/v1/object/saddle-images/${filename}`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':file.type||'image/jpeg'},
+      body:buf
+    });
+    if(!res.ok)throw new Error('Upload failed');
+    photoUrls[index]=`${SUPABASE_URL}/storage/v1/object/public/saddle-images/${filename}`;
+    toast('Photo uploaded','success');
+  }catch(err){
+    toast('Photo upload failed — try again','danger');
+    photoUrls[index]='';
+  }
+  slot.classList.remove('uploading');
+
+  updateSteps();
+});
+
+function removePhoto(index){
+  photoUrls[index]='';
+  var labels=['Left side','Right side','Seat','Tooling','Extra'];
+  var slot=document.querySelectorAll('.photo-slot')[index];
+  slot.classList.remove('has-photo');
+  slot.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><span>${labels[index]}</span>`;
+  updateSteps();
+}
+
+function updateSteps(){
+  var hasBrand=document.getElementById('ti-brand').value.trim().length>0;
+  var hasCondition=document.getElementById('ti-condition').value!=='';
+  var hasPhotos=photoUrls.some(function(u){return u!==''});
+  var hasName=document.getElementById('ti-name').value.trim().length>0;
+  var hasEmail=document.getElementById('ti-email').value.trim().length>0;
+
+  document.getElementById('step1').className='step'+(hasBrand&&hasCondition?' done':' active');
+  document.getElementById('step2').className='step'+(hasPhotos?' done':(hasBrand&&hasCondition?' active':''));
+  document.getElementById('step3').className='step'+(hasName&&hasEmail?' done':(hasPhotos?' active':''));
+}
+
+// Update steps on input
+['ti-brand','ti-model','ti-condition','ti-name','ti-email'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',updateSteps);
+  document.getElementById(id).addEventListener('change',updateSteps);
+});
+
+async function submitTradeIn(){
+  var brand=document.getElementById('ti-brand').value.trim();
+  var model=document.getElementById('ti-model').value.trim();
+  var year=document.getElementById('ti-year').value.trim();
+  var seat=document.getElementById('ti-seat').value.trim();
+  var condition=document.getElementById('ti-condition').value;
+  var price=document.getElementById('ti-price').value.trim();
+  var desc=document.getElementById('ti-desc').value.trim();
+  var name=document.getElementById('ti-name').value.trim();
+  var phone=document.getElementById('ti-phone').value.trim();
+  var email=document.getElementById('ti-email').value.trim();
+  var imgs=photoUrls.filter(function(u){return u!==''});
+
+  // Validation
+  if(!brand){toast('Please enter the saddle brand','danger');document.getElementById('ti-brand').focus();return}
+  if(!condition){toast('Please select the condition','danger');document.getElementById('ti-condition').focus();return}
+  if(imgs.length===0){toast('Please upload at least one photo','danger');return}
+  if(!name){toast('Please enter your name','danger');document.getElementById('ti-name').focus();return}
+  if(!email){toast('Please enter your email','danger');document.getElementById('ti-email').focus();return}
+  if(email.indexOf('@')===-1||email.indexOf('.')===-1){toast('Please enter a valid email','danger');document.getElementById('ti-email').focus();return}
+
+  var btn=document.getElementById('submitBtn');
+  var status=document.getElementById('submitStatus');
+  btn.disabled=true;btn.textContent='Submitting...';
+  status.textContent='';
+
+  try{
+    var row={
+      saddle_brand:brand,
+      saddle_model:model,
+      saddle_year:year,
+      seat_size:seat,
+      condition:condition,
+      asking_price:price,
+      description:desc,
+      images:imgs,
+      contact_name:name,
+      contact_email:email,
+      contact_phone:phone,
+      status:'pending'
+    };
+
+    var resp=await sb.from('trade_in_submissions').insert([row]).select();
+    if(resp.error)throw new Error(resp.error.message);
+
+    var insertedId=resp.data[0].id;
+    var refNum='TI-'+String(insertedId).padStart(4,'0');
+
+    // Show success
+    document.getElementById('formView').style.display='none';
+    document.getElementById('successView').style.display='block';
+    document.getElementById('refNumber').textContent='Reference: '+refNum;
+    window.scrollTo({top:0,behavior:'smooth'});
+
+  }catch(err){
+    toast('Submission failed: '+err.message,'danger');
+    status.innerHTML='<span style="color:var(--danger)">Failed — please try again</span>';
+    btn.disabled=false;btn.textContent='Submit Trade-In Request';
+  }
+}
+
+function toast(msg,type){var el=document.getElementById('toast');el.textContent=msg;el.className='toast toast-'+type+' show';setTimeout(function(){el.classList.remove('show')},3000)}
+</script>
+</body>
+</html>
