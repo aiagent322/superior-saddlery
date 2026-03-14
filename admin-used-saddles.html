@@ -218,6 +218,31 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .hidden{display:none!important}
 
+  /* ─── TRADE-IN CARDS ─── */
+  .ti-card{background:var(--white);border-bottom:1px solid rgba(200,169,110,.12);padding:1rem}
+  .ti-card:last-child{border-bottom:none}
+  .ti-card-top{display:flex;gap:.85rem}
+  .ti-thumb{width:72px;height:72px;object-fit:cover;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0;border-radius:2px}
+  .ti-thumb-empty{width:72px;height:72px;background:var(--cream);border:1px solid rgba(200,169,110,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.5rem;color:var(--muted);text-transform:uppercase;border-radius:2px}
+  .ti-body{flex:1;min-width:0}
+  .ti-brand{font-weight:700;color:var(--leather);font-size:.95rem;line-height:1.2}
+  .ti-model{font-size:.75rem;color:var(--muted)}
+  .ti-meta{font-size:.75rem;color:var(--muted);margin-top:.3rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .ti-meta strong{color:var(--charcoal);font-size:.82rem}
+  .ti-condition{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:2px}
+  .ti-excellent{background:var(--success-bg);color:var(--success)}
+  .ti-good{background:#E8EFE6;color:#4A7A3D}
+  .ti-fair{background:var(--sold-bg);color:var(--sold)}
+  .ti-poor{background:var(--danger-bg);color:var(--danger)}
+  .ti-contact{font-size:.75rem;color:var(--muted);margin-top:.4rem}
+  .ti-contact a{color:var(--aged-gold);text-decoration:none;font-weight:600}
+  .ti-desc{font-size:.78rem;color:var(--muted);margin-top:.4rem;font-style:italic}
+  .ti-photos{display:flex;gap:.35rem;margin-top:.5rem;overflow-x:auto}
+  .ti-photos img{width:48px;height:48px;object-fit:cover;border:1px solid rgba(200,169,110,.2);border-radius:2px;flex-shrink:0;cursor:pointer}
+  .ti-photos img:active{opacity:.7}
+  .ti-actions{margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap}
+  .ti-time{font-size:.65rem;color:var(--silver);margin-top:.35rem}
+
   /* ─── DESKTOP BREAKPOINTS ─── */
   @media(min-width:700px){
     .card-list{display:none}.desktop-table{display:block}
@@ -340,6 +365,24 @@
     <div class="desktop-table"><div class="table-scroll"><table><thead><tr><th>Image</th><th>Name</th><th>Stock #</th><th>Price</th><th>Status</th><th>Category</th><th></th></tr></thead><tbody id="tableBody"></tbody></table></div></div>
     <div class="card-list" id="cardList"></div>
     <div class="empty-state" id="emptyState">No saddles yet. Add your first one above.</div>
+  </div>
+
+  <!-- TRADE-INS -->
+  <div class="table-panel" id="tradeInPanel">
+    <div class="table-header" style="border-bottom:2px solid var(--aged-gold)">
+      <div class="table-header-top">
+        <h2>Trade-In Requests <span id="tradeInCount" style="font-family:'Source Sans 3';font-size:.82rem;color:var(--aged-gold);font-weight:600"></span></h2>
+      </div>
+      <div class="filter-scroll"><div class="filter-tabs">
+        <button class="filter-tab active" onclick="setTiFilter('all')">All</button>
+        <button class="filter-tab" onclick="setTiFilter('pending')">Pending</button>
+        <button class="filter-tab" onclick="setTiFilter('reviewing')">Reviewing</button>
+        <button class="filter-tab" onclick="setTiFilter('accepted')">Accepted</button>
+        <button class="filter-tab" onclick="setTiFilter('rejected')">Rejected</button>
+      </div></div>
+    </div>
+    <div class="card-list" id="tiCardList" style="display:block"></div>
+    <div class="empty-state" id="tiEmptyState">No trade-in requests yet.</div>
   </div>
 
 </div>
@@ -588,7 +631,110 @@ document.getElementById('photoFileInput').addEventListener('change',async functi
   uploadTargetSlot=null;
 });
 
+// ─── Trade-In Management ───
+var tradeIns=[],tiFilter='all';
+
+async function loadTradeIns(){
+  try{
+    var resp=await sb.from('trade_in_submissions').select('*').order('submitted_at',{ascending:false});
+    if(resp.error)throw resp.error;
+    tradeIns=resp.data||[];
+  }catch(e){console.error('Trade-in load:',e);tradeIns=[]}
+  renderTradeIns();
+}
+
+function setTiFilter(f){
+  tiFilter=f;
+  document.querySelectorAll('#tradeInPanel .filter-tab').forEach(function(t){t.classList.toggle('active',t.textContent.toLowerCase()===f)});
+  renderTradeIns();
+}
+
+function filteredTi(){return tiFilter==='all'?tradeIns:tradeIns.filter(function(t){return t.status===tiFilter})}
+
+function renderTradeIns(){
+  var list=filteredTi();
+  var container=document.getElementById('tiCardList');
+  var empty=document.getElementById('tiEmptyState');
+  var countEl=document.getElementById('tradeInCount');
+  var pending=tradeIns.filter(function(t){return t.status==='pending'}).length;
+  countEl.textContent=pending>0?'('+pending+' pending)':'';
+
+  if(!list.length){container.innerHTML='';empty.style.display='block';empty.textContent=tradeIns.length?'No '+tiFilter+' trade-ins.':'No trade-in requests yet.';return}
+  empty.style.display='none';
+
+  container.innerHTML=list.map(function(t){
+    var imgs=t.images||[];
+    var date=new Date(t.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return '<div class="ti-card">'
+      +'<div class="ti-card-top">'
+      +(imgs[0]?'<img class="ti-thumb" src="'+esc(imgs[0])+'" alt="'+esc(t.saddle_brand)+'">':'<div class="ti-thumb-empty">No photo</div>')
+      +'<div class="ti-body">'
+      +'<div class="ti-brand">'+esc(t.saddle_brand)+(t.saddle_model?' — '+esc(t.saddle_model):'')+'</div>'
+      +'<div class="ti-meta">'
+      +(t.asking_price?'<strong>'+esc(t.asking_price)+'</strong>':'<span>No price set</span>')
+      +'<span class="ti-condition ti-'+t.condition+'">'+esc(t.condition)+'</span>'
+      +'<span class="status-badge status-'+(t.status==='pending'?'pending':t.status==='accepted'?'active':t.status==='rejected'?'archived':'pending')+'">'+esc(t.status)+'</span>'
+      +(t.seat_size?'<span>'+esc(t.seat_size)+'</span>':'')
+      +(t.saddle_year?'<span>'+esc(t.saddle_year)+'</span>':'')
+      +'</div>'
+      +'<div class="ti-contact">'+esc(t.contact_name)+' · <a href="mailto:'+esc(t.contact_email)+'">'+esc(t.contact_email)+'</a>'+(t.contact_phone?' · <a href="tel:'+esc(t.contact_phone)+'">'+esc(t.contact_phone)+'</a>':'')+'</div>'
+      +(t.description?'<div class="ti-desc">'+esc(t.description).substring(0,150)+(t.description.length>150?'...':'')+'</div>':'')
+      +'</div></div>'
+      +(imgs.length>0?'<div class="ti-photos">'+imgs.map(function(u){return'<img src="'+esc(u)+'" onclick="window.open(\''+esc(u)+'\',\'_blank\')">'}).join('')+'</div>':'')
+      +'<div class="ti-actions">'
+      +(t.status==='pending'?'<button class="btn-sm" onclick="updateTiStatus('+t.id+',\'reviewing\')">Review</button>':'')
+      +(t.status==='pending'||t.status==='reviewing'?'<button class="btn-sm" style="border-color:var(--success);color:var(--success)" onclick="acceptTradeIn('+t.id+')">Accept</button>':'')
+      +(t.status!=='rejected'&&t.status!=='accepted'?'<button class="btn-sm del" onclick="updateTiStatus('+t.id+',\'rejected\')">Reject</button>':'')
+      +(t.status==='accepted'?'<button class="btn-sm" style="border-color:var(--success);color:var(--success)" onclick="convertToListing('+t.id+')">→ Create Listing</button>':'')
+      +'</div>'
+      +'<div class="ti-time">Submitted '+date+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+async function updateTiStatus(id,status){
+  try{
+    var updates={status:status};
+    if(status!=='pending')updates.reviewed_at=new Date().toISOString();
+    var resp=await sb.from('trade_in_submissions').update(updates).eq('id',id);
+    if(resp.error)throw resp.error;
+    await loadTradeIns();
+    toast('Updated to '+status,'success');
+  }catch(e){toast('Update failed: '+e.message,'danger')}
+}
+
+async function acceptTradeIn(id){
+  if(!confirm('Accept this trade-in?'))return;
+  await updateTiStatus(id,'accepted');
+}
+
+async function convertToListing(id){
+  var t=tradeIns.find(function(x){return x.id===id});
+  if(!t){toast('Not found','danger');return}
+  if(!confirm('Create a Certified Used listing from this trade-in?'))return;
+  var row={
+    title:t.saddle_brand+(t.saddle_model?' — '+t.saddle_model:''),
+    model:'Model Nr. TI-'+String(t.id).padStart(4,'0'),
+    category:'Certified Used',
+    img:(t.images&&t.images[0])||'',
+    images:t.images||[],
+    url:'#',price:t.asking_price||'',
+    stock_no:'TI-'+String(t.id).padStart(4,'0'),
+    description:t.description||'',
+    specs:[t.condition?'Condition: '+t.condition.charAt(0).toUpperCase()+t.condition.slice(1):'',t.seat_size?'Seat Size: '+t.seat_size:'',t.saddle_year?'Year: '+t.saddle_year:''].filter(function(s){return s!==''}),
+    status:'pending'
+  };
+  try{
+    var resp=await sb.from('used_saddles').insert([row]);
+    if(resp.error)throw resp.error;
+    await load();
+    toast('Listing created — edit in inventory above','success');
+    document.querySelector('.table-panel').scrollIntoView({behavior:'smooth'});
+  }catch(e){toast('Failed: '+e.message,'danger')}
+}
+
 load();
+loadTradeIns();
 </script>
 </body>
 </html>
