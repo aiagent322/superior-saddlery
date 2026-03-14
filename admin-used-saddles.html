@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Certified Used Saddles | Superior Saddlery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --leather:    #5C3A1E;
+    --saddle-tan: #C8A96E;
+    --aged-gold:  #B8943E;
+    --cream:      #F5F0E8;
+    --charcoal:   #2A2420;
+    --warm-black: #1A1512;
+    --silver:     #D4D0C8;
+    --deep-brown: #3B2614;
+    --white:      #FFFFFF;
+    --muted:      #8B7D6F;
+    --danger:     #A63D2F;
+    --danger-bg:  #F5E6E3;
+    --success:    #3D7A4A;
+    --success-bg: #E6F0E8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .admin-header {
+    background: var(--warm-black);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .admin-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--cream);
+    font-weight: 700;
+  }
+
+  .admin-header h1 span {
+    color: var(--aged-gold);
+    font-weight: 700;
+  }
+
+  .header-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--aged-gold);
+    border: 1px solid rgba(184,148,62,0.4);
+    padding: 0.3rem 0.8rem;
+  }
+
+  .header-count {
+    font-size: 0.82rem;
+    color: var(--silver);
+    font-weight: 500;
+  }
+
+  .header-count strong {
+    color: var(--aged-gold);
+    font-size: 1.1rem;
+  }
+
+  /* ─── LAYOUT ─── */
+  .admin-layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ─── ADD FORM ─── */
+  .form-panel {
+    background: var(--white);
+    border: 1px solid rgba(200,169,110,0.2);
+    padding: 1.5rem;
+  }
+
+  .form-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--leather);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--aged-gold);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--cream);
+    border: 1.5px solid var(--silver);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--aged-gold);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .form-group .hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  .img-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .img-fields input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--cream);
+    border: 1.5px solid var(--silver);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .img-fields input:first-child {
+    border-color: var(--aged-gold);
+    background: rgba(184,148,62,0.06);
+  }
+
+  .img-fields input:focus { border-color: var(--aged-gold); }
+
+  .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.6rem 1.5rem;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: var(--leather);
+    color: var(--cream);
+  }
+  .btn-primary:hover { background: var(--deep-brown); }
+
+  .btn-export {
+    background: var(--aged-gold);
+    color: var(--warm-black);
+  }
+  .btn-export:hover { background: #A68435; }
+
+  .btn-danger {
+    background: var(--danger);
+    color: var(--white);
+  }
+  .btn-danger:hover { background: #8C3225; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--silver);
+  }
+  .btn-ghost:hover { border-color: var(--aged-gold); color: var(--leather); }
+
+  /* ─── TABLE ─── */
+  .table-panel {
+    background: var(--white);
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 2px solid var(--aged-gold);
+  }
+
+  .table-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--leather);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+
+  thead th {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--cream);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(200,169,110,0.2);
+    position: sticky;
+    top: 0;
+  }
+
+  tbody td {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(200,169,110,0.1);
+    vertical-align: top;
+  }
+
+  tbody tr:hover { background: rgba(200,169,110,0.05); }
+
+  .td-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    background: var(--cream);
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+
+  .td-thumb-empty {
+    width: 50px;
+    height: 50px;
+    background: var(--cream);
+    border: 1px solid rgba(200,169,110,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .td-title { font-weight: 600; color: var(--leather); }
+  .td-model { font-size: 0.78rem; color: var(--muted); font-family: monospace; }
+  .td-specs { font-size: 0.78rem; color: var(--muted); max-width: 250px; }
+
+  .btn-delete {
+    background: none;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.7rem;
+    min-height: 32px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-delete:hover { background: var(--danger); color: var(--white); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success); }
+  .toast-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+
+  /* ─── SCAN PANEL ─── */
+  .scan-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .scan-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1.5rem;
+    border: 2px dashed var(--silver);
+    background: rgba(200,169,110,0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .scan-dropzone:hover {
+    border-color: var(--aged-gold);
+    background: rgba(200,169,110,0.08);
+  }
+
+  .scan-dropzone svg { color: var(--silver); transition: color 0.2s ease; }
+  .scan-dropzone:hover svg { color: var(--aged-gold); }
+
+  .scan-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--charcoal);
+  }
+
+  .scan-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .scan-preview {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .scan-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+
+  .scan-remove {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--danger);
+    color: var(--white);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-status {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .scan-status.scanning {
+    color: var(--aged-gold);
+  }
+
+  .scan-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--silver);
+    border-top-color: var(--aged-gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (min-width: 600px) {
+    .admin-layout { padding: 2rem 1.5rem; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-panel { padding: 2rem; }
+  }
+
+  @media (min-width: 900px) {
+    .admin-header { padding: 1.25rem 2.5rem; }
+    .admin-layout { padding: 2.5rem 2rem; gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="admin-header">
+  <h1>Superior Saddlery — <span>Certified Used</span></h1>
+  <div class="header-badge">Admin Dashboard</div>
+  <div class="header-count"><strong id="totalCount">0</strong> saddles</div>
+</header>
+
+<div class="admin-layout">
+
+  <!-- SCAN SALE SLIP -->
+  <div class="form-panel scan-panel">
+    <h2>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="vertical-align:-3px;margin-right:0.4rem;color:var(--aged-gold)"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Scan Sale Slip
+    </h2>
+    <p class="scan-desc">Upload or photograph a sale slip, tag, or invoice. AI reads the details and pre-fills the form below.</p>
+    <div class="scan-area" id="scanArea">
+      <div class="scan-dropzone" id="scanDropzone" onclick="document.getElementById('scanFileInput').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span class="scan-label">Tap to upload or take photo</span>
+        <span class="scan-hint">JPG, PNG, PDF — sale slips, tags, invoices</span>
+      </div>
+      <div class="scan-preview hidden" id="scanPreview">
+        <img id="scanPreviewImg" src="data:," alt="Sale slip preview">
+        <button class="scan-remove" onclick="clearScan()" aria-label="Remove image">&times;</button>
+      </div>
+    </div>
+    <input type="file" id="scanFileInput" accept="image/*,application/pdf" capture="environment" style="display:none" onchange="handleScanFile(event)">
+    <div class="form-actions" style="margin-top:1rem">
+      <button class="btn btn-primary" id="scanBtn" onclick="scanSlip()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        Scan &amp; Fill Form
+      </button>
+      <div class="scan-status" id="scanStatus"></div>
+    </div>
+  </div>
+
+  <!-- ADD FORM -->
+  <div class="form-panel">
+    <h2>Add Saddle</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="f-title">Saddle Name</label>
+        <input type="text" id="f-title" placeholder="e.g. Cade McCutcheon Reiner">
+      </div>
+      <div class="form-group">
+        <label for="f-model">Model Number</label>
+        <input type="text" id="f-model" placeholder="e.g. 220-CM-1-ANTQ">
+      </div>
+      <div class="form-group">
+        <label for="f-category">Category</label>
+        <input type="text" id="f-category" placeholder="e.g. Reining · Square Skirt" value="Certified Used">
+      </div>
+      <div class="form-group full">
+        <label>Images <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">(#1 is primary — up to 5)</span></label>
+        <div class="img-fields">
+          <input type="url" id="f-img-1" placeholder="#1 Primary image URL (required for card thumbnail)">
+          <input type="url" id="f-img-2" placeholder="#2 Additional angle">
+          <input type="url" id="f-img-3" placeholder="#3 Additional angle">
+          <input type="url" id="f-img-4" placeholder="#4 Detail / tooling close-up">
+          <input type="url" id="f-img-5" placeholder="#5 Detail / tooling close-up">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="f-url">Product Page URL</label>
+        <input type="url" id="f-url" placeholder="https://superior-saddlery.com/product/...">
+      </div>
+      <div class="form-group">
+        <label for="f-price">Price</label>
+        <input type="text" id="f-price" placeholder="e.g. $3,495 or Call for pricing">
+      </div>
+      <div class="form-group">
+        <label for="f-stock">Stock Number</label>
+        <input type="text" id="f-stock" placeholder="e.g. CU-2026-001">
+      </div>
+      <div class="form-group full">
+        <label for="f-desc">Description</label>
+        <textarea id="f-desc" placeholder="Lightly used show saddle in excellent condition. Original owner, always stored indoors. Full Sterling silver package with custom tooling."></textarea>
+        <div class="hint">A paragraph describing condition, history, and selling points.</div>
+      </div>
+      <div class="form-group full">
+        <label for="f-specs">Specs</label>
+        <textarea id="f-specs" placeholder="Glass Encased Wood Tree&#10;Seat Sizes 15&quot;–16.5&quot;&#10;Dropped-D Rigging&#10;Sterling Overlay Trim"></textarea>
+        <div class="hint">One spec per line. Each line becomes a bullet in the detail view.</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="addSaddle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M12 5v14M5 12h14"/></svg>
+        Add Saddle
+      </button>
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-panel">
+    <div class="table-header">
+      <h2>Inventory</h2>
+      <div class="form-actions" style="margin:0">
+        <button class="btn btn-export" onclick="exportJSON()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export JSON
+        </button>
+        <button class="btn btn-ghost" onclick="importJSON()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Import JSON
+        </button>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Stock #</th>
+            <th>Model</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Specs</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState">No saddles yet. Add your first one above.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+  let saddles = [];
+
+  // ─── Persistence (localStorage between sessions) ───
+  function save() {
+    localStorage.setItem('usedSaddles', JSON.stringify(saddles));
+    render();
+  }
+
+  function load() {
+    try {
+      const stored = localStorage.getItem('usedSaddles');
+      if (stored) saddles = JSON.parse(stored);
+    } catch(e) { saddles = []; }
+    render();
+  }
+
+  // ─── Render Table ───
+  function render() {
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('totalCount').textContent = saddles.length;
+
+    if (saddles.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    tbody.innerHTML = saddles.map((s, i) => `
+      <tr>
+        <td>${s.img ? `<div style="position:relative;display:inline-block"><img class="td-thumb" src="${s.img}" alt="${s.title}">${(s.images && s.images.length > 1) ? `<span style="position:absolute;bottom:2px;right:2px;background:var(--aged-gold);color:var(--white);font-size:0.55rem;font-weight:700;padding:1px 4px;line-height:1.2">${s.images.length}</span>` : ''}</div>` : '<div class="td-thumb-empty">No img</div>'}</td>
+        <td class="td-title">${esc(s.title)}</td>
+        <td class="td-model">${esc(s.stockNo || '—')}</td>
+        <td class="td-model">${esc(s.model)}</td>
+        <td style="font-weight:600;white-space:nowrap">${esc(s.price || '—')}</td>
+        <td>${esc(s.category)}</td>
+        <td class="td-specs">${esc(s.specs.join(' · '))}</td>
+        <td><button class="btn-delete" onclick="deleteSaddle(${i})">Delete</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ─── Add ───
+  function addSaddle() {
+    const title = document.getElementById('f-title').value.trim();
+    const model = document.getElementById('f-model').value.trim();
+    const category = document.getElementById('f-category').value.trim();
+    const images = [1,2,3,4,5].map(n => document.getElementById(`f-img-${n}`).value.trim()).filter(Boolean);
+    const url = document.getElementById('f-url').value.trim();
+    const price = document.getElementById('f-price').value.trim();
+    const stockNo = document.getElementById('f-stock').value.trim();
+    const desc = document.getElementById('f-desc').value.trim();
+    const specsRaw = document.getElementById('f-specs').value.trim();
+
+    if (!title) { toast('Saddle name is required', 'danger'); return; }
+    if (!model) { toast('Model number is required', 'danger'); return; }
+
+    saddles.push({
+      title,
+      category: category || 'Certified Used',
+      model: model.startsWith('Model Nr.') ? model : `Model Nr. ${model}`,
+      img: images[0] || '',
+      images: images,
+      url: url || '#',
+      price: price || '',
+      stockNo: stockNo || '',
+      description: desc || '',
+      specs: specsRaw ? specsRaw.split('\n').map(s => s.trim()).filter(Boolean) : ['Contact Superior Saddlery for details']
+    });
+
+    save();
+    clearForm();
+    toast(`Added: ${title}`, 'success');
+  }
+
+  // ─── Delete ───
+  function deleteSaddle(index) {
+    const name = saddles[index].title;
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    saddles.splice(index, 1);
+    save();
+    toast(`Deleted: ${name}`, 'danger');
+  }
+
+  // ─── Clear Form ───
+  function clearForm() {
+    ['f-title','f-model','f-url','f-price','f-stock','f-desc','f-specs'].forEach(id => document.getElementById(id).value = '');
+    [1,2,3,4,5].forEach(n => document.getElementById(`f-img-${n}`).value = '');
+    document.getElementById('f-category').value = 'Certified Used';
+    document.getElementById('f-title').focus();
+  }
+
+  // ─── Export JSON ───
+  function exportJSON() {
+    if (saddles.length === 0) { toast('No saddles to export', 'danger'); return; }
+    const json = JSON.stringify(saddles, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'used-saddles.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(`Exported ${saddles.length} saddles`, 'success');
+  }
+
+  // ─── Import JSON ───
+  function importJSON() {
+    document.getElementById('fileInput').click();
+  }
+
+  function handleImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) throw new Error('Not an array');
+        // Validate structure
+        const valid = data.every(s => s.title && s.model);
+        if (!valid) throw new Error('Missing title or model in some entries');
+        if (saddles.length > 0 && !confirm(`Replace current ${saddles.length} saddles with ${data.length} from file?`)) return;
+        saddles = data;
+        save();
+        toast(`Imported ${data.length} saddles`, 'success');
+      } catch(err) {
+        toast(`Import failed: ${err.message}`, 'danger');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // ─── Toast ───
+  function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast toast-${type} show`;
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ─── Sale Slip Scanner ───
+  let scanBase64 = null;
+  let scanMediaType = null;
+
+  function handleScanFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      scanBase64 = dataUrl.split(',')[1];
+      scanMediaType = file.type === 'application/pdf' ? 'application/pdf' : file.type || 'image/jpeg';
+
+      // Show preview
+      const preview = document.getElementById('scanPreview');
+      const dropzone = document.getElementById('scanDropzone');
+      if (file.type.startsWith('image/')) {
+        document.getElementById('scanPreviewImg').src = dataUrl;
+      } else {
+        document.getElementById('scanPreviewImg').src = 'data:,';
+        document.getElementById('scanPreviewImg').alt = file.name;
+      }
+      dropzone.classList.add('hidden');
+      preview.classList.remove('hidden');
+      document.getElementById('scanBtn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function clearScan() {
+    scanBase64 = null;
+    scanMediaType = null;
+    document.getElementById('scanPreview').classList.add('hidden');
+    document.getElementById('scanDropzone').classList.remove('hidden');
+    document.getElementById('scanBtn').disabled = true;
+    document.getElementById('scanStatus').innerHTML = '';
+  }
+
+  async function scanSlip() {
+    if (!scanBase64) { toast('Upload an image first', 'danger'); return; }
+
+    const btn = document.getElementById('scanBtn');
+    const status = document.getElementById('scanStatus');
+    btn.disabled = true;
+    btn.textContent = 'Scanning...';
+    status.className = 'scan-status scanning';
+    status.innerHTML = '<span class="scan-spinner"></span> AI is reading the sale slip...';
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: { type: 'base64', media_type: scanMediaType, data: scanBase64 }
+              },
+              {
+                type: 'text',
+                text: `You are a saddle inventory scanner for Superior Saddlery. Extract all available details from this sale slip, tag, invoice, or listing image.
+
+Return ONLY valid JSON with no markdown, no backticks, no preamble. Use this exact schema:
+{
+  "title": "saddle name",
+  "model": "model number (without 'Model Nr.' prefix)",
+  "category": "e.g. Reining · Square Skirt or Certified Used",
+  "price": "e.g. $3,495",
+  "stockNo": "stock or serial number",
+  "description": "condition description, history, selling points as a paragraph",
+  "specs": ["spec 1", "spec 2", "spec 3"]
+}
+
+Rules:
+- If a field is not visible or cannot be determined, use an empty string "" for text fields or empty array [] for specs
+- For specs, extract individual features like tree type, seat size, rigging, silver trim, tooling, leather type, seat material
+- For price, include the $ symbol
+- For description, write a professional selling paragraph based on what you see
+- Category should default to "Certified Used" unless a specific type is clearly indicated`
+              }
+            ]
+          }]
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error.message || 'API error');
+      }
+
+      const text = data.content.map(c => c.text || '').join('');
+      const cleaned = text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+
+      // Fill form fields
+      if (parsed.title) document.getElementById('f-title').value = parsed.title;
+      if (parsed.model) document.getElementById('f-model').value = parsed.model;
+      if (parsed.category) document.getElementById('f-category').value = parsed.category;
+      if (parsed.price) document.getElementById('f-price').value = parsed.price;
+      if (parsed.stockNo) document.getElementById('f-stock').value = parsed.stockNo;
+      if (parsed.description) document.getElementById('f-desc').value = parsed.description;
+      if (parsed.specs && parsed.specs.length) document.getElementById('f-specs').value = parsed.specs.join('\n');
+
+      status.className = 'scan-status';
+      status.innerHTML = '<span style="color:var(--success);font-weight:600">✓ Form filled — review and hit Add Saddle</span>';
+      toast('Sale slip scanned — review the form below', 'success');
+
+      // Scroll to form
+      document.querySelector('.form-panel:nth-child(2)').scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+      status.className = 'scan-status';
+      status.innerHTML = `<span style="color:var(--danger)">Scan failed: ${err.message}</span>`;
+      toast('Scan failed — try a clearer photo', 'danger');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> Scan &amp; Fill Form';
+  }
+
+  // ─── Init ───
+  load();
+</script>
+
+</body>
+</html>
