@@ -352,7 +352,7 @@
 const SUPABASE_URL='https://eyayfiahbkczisdxwvup.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5YXlmaWFoYmtjemlzZHh3dnVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDc0MjEsImV4cCI6MjA4OTA4MzQyMX0.LpHerIHN30QJ-mOQQSRP5bYks-IoAAq8dPJJqpK1Vq8';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let saddles=[],currentFilter='all';
+var saddles=[],currentFilter='all';
 
 function showLoading(){document.getElementById('loadingBar').classList.add('active')}
 function hideLoading(){document.getElementById('loadingBar').classList.remove('active')}
@@ -489,7 +489,7 @@ function handleImport(event){
 
 function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast toast-${type} show`;setTimeout(()=>el.classList.remove('show'),3000)}
 
-let scanBase64=null,scanMediaType=null;
+var scanBase64=null,scanMediaType=null;
 function handleScanFile(event){
   const file=event.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -541,7 +541,7 @@ async function scanSlip(){
 }
 
 // ─── Photo Upload to Supabase Storage ───
-let uploadTargetSlot=null;
+var uploadTargetSlot=null;
 function uploadPhoto(slot){
   uploadTargetSlot=slot;
   const input=document.getElementById('photoFileInput');
@@ -555,7 +555,9 @@ document.getElementById('photoFileInput').addEventListener('change',async functi
   const slot=uploadTargetSlot;
   const urlInput=document.getElementById(`f-img-${slot}`);
   const allBtns=document.querySelectorAll('.img-upload-btn');
-  const targetBtn=allBtns[slot-1]||null;
+  // Buttons are in DOM order: slot 1 = index 0, slot 2 = index 1, etc.
+  // Even hidden ones are in the DOM and queryable
+  const targetBtn=allBtns.length>=slot?allBtns[slot-1]:null;
   if(targetBtn){targetBtn.disabled=true;targetBtn.innerHTML='<span class="scan-spinner" style="width:16px;height:16px"></span>';}
 
   try{
