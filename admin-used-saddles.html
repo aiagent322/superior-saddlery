@@ -305,7 +305,6 @@
           </div>
           <button class="img-toggle" id="imgToggle" type="button" onclick="toggleImgExtras()">+ Add more images (up to 5)</button>
         </div>
-        <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none">
       </div>
       <div class="form-group"><label for="f-url">Product Page URL</label><input type="url" id="f-url" placeholder="https://superior-saddlery.com/product/..."></div>
       <div class="form-group"><label for="f-price">Price</label><input type="text" id="f-price" placeholder="e.g. $3,495"></div>
@@ -347,6 +346,7 @@
 
 <div class="toast" id="toast"></div>
 <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+<input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none">
 
 <script>
 const SUPABASE_URL='https://eyayfiahbkczisdxwvup.supabase.co';
@@ -548,46 +548,42 @@ function uploadPhoto(slot){
   input.value='';input.click();
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('photoFileInput').addEventListener('change',async function(e){
-    const file=e.target.files[0];
-    if(!file||!uploadTargetSlot)return;
-    const slot=uploadTargetSlot;
-    const btn=document.querySelector(`.img-slot:nth-child(${slot<=1?1:1}) .img-upload-btn`);
-    const urlInput=document.getElementById(`f-img-${slot}`);
+// Attach listener directly — no DOMContentLoaded needed, script is at end of body
+document.getElementById('photoFileInput').addEventListener('change',async function(e){
+  const file=e.target.files[0];
+  if(!file||!uploadTargetSlot)return;
+  const slot=uploadTargetSlot;
+  const urlInput=document.getElementById(`f-img-${slot}`);
+  const allBtns=document.querySelectorAll('.img-upload-btn');
+  const targetBtn=allBtns[slot-1]||null;
+  if(targetBtn){targetBtn.disabled=true;targetBtn.innerHTML='<span class="scan-spinner" style="width:16px;height:16px"></span>';}
 
-    // Find the correct button by slot number
-    const allBtns=document.querySelectorAll('.img-upload-btn');
-    const targetBtn=allBtns[slot-1];
-    if(targetBtn){targetBtn.disabled=true;targetBtn.innerHTML='<span class="scan-spinner" style="width:16px;height:16px"></span>';}
-
-    try{
-      const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-      const filename=`saddle-${Date.now()}-${slot}.${ext}`;
-      const buf=await file.arrayBuffer();
-      const res=await fetch(`${SUPABASE_URL}/storage/v1/object/saddle-images/${filename}`,{
-        method:'POST',
-        headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':file.type||'image/jpeg'},
-        body:buf
-      });
-      if(!res.ok){
-        const errBody=await res.text();
-        throw new Error(`Upload failed (${res.status}): ${errBody}`);
-      }
-      const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/saddle-images/${filename}`;
-      urlInput.value=publicUrl;
-      toast(`Photo ${slot} uploaded`,'success');
-    }catch(err){
-      console.error('Upload error:',err);
-      toast(`Upload failed: ${err.message}`,'danger');
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const filename=`saddle-${Date.now()}-${slot}.${ext}`;
+    const buf=await file.arrayBuffer();
+    const res=await fetch(`${SUPABASE_URL}/storage/v1/object/saddle-images/${filename}`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':file.type||'image/jpeg'},
+      body:buf
+    });
+    if(!res.ok){
+      const errBody=await res.text();
+      throw new Error(`Upload failed (${res.status}): ${errBody}`);
     }
+    const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/saddle-images/${filename}`;
+    urlInput.value=publicUrl;
+    toast(`Photo ${slot} uploaded`,'success');
+  }catch(err){
+    console.error('Upload error:',err);
+    toast(`Upload failed: ${err.message}`,'danger');
+  }
 
-    if(targetBtn){
-      targetBtn.disabled=false;
-      targetBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-    }
-    uploadTargetSlot=null;
-  });
+  if(targetBtn){
+    targetBtn.disabled=false;
+    targetBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  }
+  uploadTargetSlot=null;
 });
 
 load();
