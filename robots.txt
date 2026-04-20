@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://superiorsaddlery.pages.dev/sitemap.xml
